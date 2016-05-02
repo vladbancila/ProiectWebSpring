@@ -2,9 +2,13 @@ package spring.web.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,28 +63,45 @@ public class HomeControllers {
 
 	// Mapping pentru pagina de creare oferta .jsp
 	@RequestMapping("/createoffer")
-	public String createOffer() {
+	public String createOffer(Model model) {
+
+		model.addAttribute("offer", new Offer());
 
 		return "createoffer";
 	}
 
-	//Maping de test cand se introduce un id si se intoarce valoarea inapoi
+	// Maping de test cand se introduce un id si se intoarce valoarea inapoi
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
-	public String showTest(Model model, @RequestParam("id")String id) {
+	public String showTest(Model model, @RequestParam("id") String id) {
 
-		System.out.println("id is: "+id);
-		
-		
+		System.out.println("id is: " + id);
+
 		return "Home";
 	}
 
-	@RequestMapping(value="/docreateoffer",method=RequestMethod.POST)
-	public String doCreateOffer(Model model,Offer offer) {
+	@RequestMapping(value = "/docreateoffer", method = RequestMethod.POST)
+	public String doCreateOffer(Model model, @Valid Offer offer, BindingResult result) {
+
+		if (result.hasErrors()) {
+			System.out.println("Formularul nu se valideaza");
+
+			List<ObjectError> errors = result.getAllErrors();
+
+			for (ObjectError error : errors) {
+				System.out.println(error.getDefaultMessage());
+
+			}
+			
+			return "createoffer";
+
+		} else {
+			System.out.println("Formularul se valideaza avem urmatorul obiect: " + offer);
+		}
 
 		System.out.println(offer);
 		return "offercreated";
 	}
-	
+
 	@Autowired
 	public void setOfferService(OffersService offerService) {
 		this.offerService = offerService;
